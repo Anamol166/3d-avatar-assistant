@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Assistant</title>
-    <link rel="stylesheet" href="/assets/style.css"> </head>
+    <link rel="stylesheet" href="/assets/style.css"></script>
+    <script type="module" src="/assets/main.js"></script>
+</head>
 <body>
-
 <div id="character-container">
     <canvas id="three-canvas"></canvas>
 </div>
@@ -16,16 +17,25 @@
     <div id="chat-messages">Link established...</div>
     
     <div id="command-bar">
+      <div id="command-menu" class="command-popup">
+        <div class="command-option" onclick="handleCommand('/dance')">DANCE ROUTINE</div>
+        <div class="command-option" onclick="handleCommand('/reset')">RESET POSE</div>
+        <div class="command-option" onclick="handleCommand('/light')">CYCLE LIGHTS</div>
+    </div>
         <button id="commandBtn">> EXECUTE COMMAND</button>
     </div>
 
     <div id="chat-input-area">
         <input type="text" id="userInput" placeholder="Type your message...">
-        <button id="sendBtn">SEND</button>
+        <button id="sendBtn">Send</button>
     </div>
 </div>
-
-<script type="module" src="/assets/body.js"></script>
-
+<div id="ai-mood-panel">
+    <div style="font-size: 10px; color: #888;">AI STATUS</div>
+    <div id="status-text" style="font-weight: bold; color: #00d4ff;">IDLE</div>
+    <div style="margin-top: 10px; font-size: 10px; color: #888;">MOOD</div>
+    <div id="mood-display" style="font-size: 18px; font-weight: bold;">NEUTRAL</div>
+    <div class="bar-bg"><div id="mood-fill"></div></div>
+</div>
 </body>
 </html>

@@ -2,20 +2,31 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Avatar Bone Lab - Touch & Adjust</title>
+<title>Pro Layout Lab | Precision Controls</title>
 <style>
-    body { margin:0; display:flex; font-family:'Segoe UI', sans-serif; color:white; background:#111; overflow: hidden;}
-    #viewer { flex:1; height:100vh; background: radial-gradient(circle, #333 0%, #111 100%); cursor: crosshair;}
-    #controls { width:400px; background:#222; padding:20px; overflow-y:auto; height:100vh; border-left:1px solid #444; }
-    .control-group { margin-bottom:15px; padding:12px; background:#2a2a2a; border-radius:8px; border:1px solid #444; }
-    h3 { margin:0 0 10px 0; font-size:13px; color:#00d4ff; text-transform: uppercase; }
-    label { display:block; font-size:10px; color:#888; margin-top: 5px;}
-    .slider-row { display:flex; align-items:center; gap:8px; margin-bottom:2px;}
-    input[type=range] { flex:1; accent-color: #00d4ff; }
-    span { font-size:10px; width:35px; font-family:monospace; color: #00d4ff; }
-    button { width:100%; padding:12px; background:#00d4ff; border:none; color:#111; border-radius:5px; cursor:pointer; font-weight:bold; margin-top:10px; }
-    textarea { width:100%; height:100px; background:#000; color:#0f0; border:1px solid #444; margin-top:10px; font-family:monospace; font-size:11px; }
-    .status { font-size: 11px; color: #ffeb3b; margin-bottom: 10px; font-style: italic;}
+    body { margin:0; display:flex; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color:white; background:#000; overflow: hidden;}
+    #viewer { flex:1; height:100vh; background: radial-gradient(circle, #222 0%, #050505 100%); }
+    #controls { width:360px; background:#111; padding:20px; overflow-y:auto; height:100vh; border-left:1px solid #333; box-shadow: -5px 0 15px rgba(0,0,0,0.5); }
+    
+    .group { margin-bottom:20px; padding:15px; background:#1a1a1a; border-radius:8px; border:1px solid #333; }
+    h3 { margin:0 0 12px 0; font-size:11px; color:#00d4ff; text-transform: uppercase; letter-spacing: 1.5px; }
+    
+    .slider-item { margin-bottom: 12px; }
+    .slider-header { display: flex; justify-content: space-between; font-size: 10px; color: #888; margin-bottom: 4px; }
+    .slider-header b { color: #fff; }
+    input[type=range] { width: 100%; accent-color: #00d4ff; cursor: pointer; }
+
+    .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;}
+    button { padding:10px; border:none; border-radius:4px; cursor:pointer; font-weight:bold; transition: 0.2s; font-size: 11px;}
+    .btn-mode { background: #333; color: #aaa; }
+    .btn-mode.active { background: #00d4ff; color: #000; box-shadow: 0 0 10px rgba(0,212,255,0.4); }
+    
+    .export-area { position: relative; }
+    .btn-copy { background:#4caf50; color:white; width: 100%; padding: 12px; font-size: 13px; margin-top: 10px;}
+    .btn-copy:active { transform: scale(0.98); background: #3d8b40; }
+    
+    textarea { width:100%; height:150px; background:#050505; color:#00ff41; border:1px solid #333; margin-top:10px; font-family:'Consolas', monospace; font-size:11px; padding: 10px; box-sizing: border-box; border-radius: 4px; resize: none;}
+    .hint { font-size: 10px; color: #555; text-align: center; margin-top: 10px;}
 </style>
 </head>
 <body>
@@ -23,19 +34,41 @@
 <div id="viewer"></div>
 
 <div id="controls">
-    <h2>Touch & Adjust Lab</h2>
-    <div class="status" id="status">Click a bone in the 3D view to select it</div>
-
-    <div class="control-group">
-        <h3>Current Bone Rotation</h3>
-        <div class="slider-row"><label>X</label><input type="range" id="curX" min="-3.14" max="3.14" step="0.01" value="0"><span id="vcurX">0</span></div>
-        <div class="slider-row"><label>Y</label><input type="range" id="curY" min="-3.14" max="3.14" step="0.01" value="0"><span id="vcurY">0</span></div>
-        <div class="slider-row"><label>Z</label><input type="range" id="curZ" min="-3.14" max="3.14" step="0.01" value="0"><span id="vcurZ">0</span></div>
+    <h2 style="font-weight: 300; border-bottom: 1px solid #333; padding-bottom: 10px;">Precision Lab</h2>
+    
+    <div class="group">
+        <h3>Active Target</h3>
+        <div class="btn-row">
+            <button id="selRoom" class="btn-mode active" onclick="selectObj('room')">ROOM</button>
+            <button id="selAvatar" class="btn-mode" onclick="selectObj('avatar')">AVATAR</button>
+        </div>
     </div>
 
-    <button onclick="copyData()">Export Thinking Pose</button>
-    <p style="font-size: 10px; color: #666;">Note: Adjust all 4 bones (Upper, Lower, Hand, Head) then click Export.</p>
-    <textarea id="output" readonly></textarea>
+    <div class="group">
+        <h3>Position & Scale</h3>
+        <div class="slider-item">
+            <div class="slider-header">POS X <b id="valX">0.00</b></div>
+            <input type="range" id="slideX" min="-10" max="10" step="0.05" value="0">
+        </div>
+        <div class="slider-item">
+            <div class="slider-header">POS Y <b id="valY">0.00</b></div>
+            <input type="range" id="slideY" min="-5" max="5" step="0.01" value="-0.5">
+        </div>
+        <div class="slider-item">
+            <div class="slider-header">POS Z <b id="valZ">0.00</b></div>
+            <input type="range" id="slideZ" min="-10" max="10" step="0.05" value="0">
+        </div>
+        <div class="slider-item" style="border-top: 1px solid #333; padding-top: 10px;">
+            <div class="slider-header">UNIFORM SCALE <b id="valS">1.00</b></div>
+            <input type="range" id="slideS" min="0.1" max="5" step="0.05" value="1">
+        </div>
+    </div>
+
+    <div class="export-area">
+        <textarea id="output" readonly></textarea>
+        <button class="btn-copy" onclick="copyToClipboard()">COPY CODE</button>
+    </div>
+    <div class="hint">Numbers auto-update as you move.</div>
 </div>
 
 <script type="module">
@@ -44,148 +77,111 @@ import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/l
 import { OrbitControls } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/controls/OrbitControls.js';
 import { TransformControls } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/controls/TransformControls.js';
 
-let scene, camera, renderer, orbit, tControls, model;
-let raycaster = new THREE.Raycaster();
-let mouse = new THREE.Vector2();
-let selectedBone = null;
-
-let bones = { r_upper: null, r_lower: null, r_hand: null, head: null };
+let scene, camera, renderer, orbit, transform;
+let room, avatar, currentTarget;
 
 function init() {
     scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(30, (window.innerWidth - 400) / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 1.4, 3.5);
+    scene.background = new THREE.Color(0x0a0a0a);
 
-    renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
-    renderer.setSize(window.innerWidth-400, window.innerHeight);
+    camera = new THREE.PerspectiveCamera(30, (window.innerWidth - 360) / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 2, 7);
+
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth - 360, window.innerHeight);
     renderer.outputEncoding = THREE.sRGBEncoding;
     document.getElementById('viewer').appendChild(renderer.domElement);
 
     orbit = new OrbitControls(camera, renderer.domElement);
-    orbit.target.set(0, 1.4, 0);
-
-    // Transform Controls Setup
-    tControls = new TransformControls(camera, renderer.domElement);
-    tControls.setMode('rotate'); // Only rotate for bones
-    tControls.addEventListener('dragging-changed', (e) => orbit.enabled = !e.value);
     
-    // Sync sliders when mouse moves gizmo
-    tControls.addEventListener('change', () => {
-        if(selectedBone) {
-            updateSlidersFromBone(selectedBone);
-        }
-    });
-    scene.add(tControls);
+    transform = new TransformControls(camera, renderer.domElement);
+    transform.addEventListener('dragging-changed', (e) => orbit.enabled = !e.value);
+    transform.addEventListener('change', updateSlidersFromObject);
+    scene.add(transform);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 1.0));
-    const d = new THREE.DirectionalLight(0xffffff, 0.8);
-    d.position.set(5,10,7);
-    scene.add(d);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+    const sun = new THREE.DirectionalLight(0xffffff, 0.6);
+    sun.position.set(5, 10, 5);
+    scene.add(sun);
 
     const loader = new GLTFLoader();
-    loader.load('/assets/character.glb', gltf => {
-        model = gltf.scene;
-        model.rotation.y = Math.PI;
+    loader.load('/assets/textures/room.glb', (gltf) => {
+        room = gltf.scene;
+        room.position.set(0, -0.5, 0);
+        scene.add(room);
+        selectObj('room');
+    });
+
+    loader.load('/assets/character.glb', (gltf) => {
+        avatar = gltf.scene;
+        avatar.rotation.y = Math.PI;
+        scene.add(avatar);
+    });
+
+    // Slider Logic
+    const ids = ['X', 'Y', 'Z', 'S'];
+    ids.forEach(id => {
+        document.getElementById('slide'+id).addEventListener('input', (e) => {
+            if(!currentTarget) return;
+            const val = parseFloat(e.target.value);
+            if(id === 'S') {
+                currentTarget.scale.set(val, val, val);
+            } else {
+                currentTarget.position[id.toLowerCase()] = val;
+            }
+            updateTextOutput();
+            document.getElementById('val'+id).innerText = val.toFixed(2);
+        });
+    });
+
+    window.selectObj = (type) => {
+        document.getElementById('selRoom').classList.toggle('active', type === 'room');
+        document.getElementById('selAvatar').classList.toggle('active', type === 'avatar');
+        currentTarget = type === 'room' ? room : avatar;
+        transform.attach(currentTarget);
+        updateSlidersFromObject();
+    };
+
+    function updateSlidersFromObject() {
+        if(!currentTarget) return;
+        document.getElementById('slideX').value = currentTarget.position.x;
+        document.getElementById('slideY').value = currentTarget.position.y;
+        document.getElementById('slideZ').value = currentTarget.position.z;
+        document.getElementById('slideS').value = currentTarget.scale.x;
         
-        // Visual Bone Helpers (uncomment to see skeleton)
-        // const helper = new THREE.SkeletonHelper(model);
-        // scene.add(helper);
+        document.getElementById('valX').innerText = currentTarget.position.x.toFixed(2);
+        document.getElementById('valY').innerText = currentTarget.position.y.toFixed(2);
+        document.getElementById('valZ').innerText = currentTarget.position.z.toFixed(2);
+        document.getElementById('valS').innerText = currentTarget.scale.x.toFixed(2);
+        updateTextOutput();
+    }
 
-        model.traverse(n => {
-            if(n.isBone){
-                if(n.name === "J_Bip_R_UpperArm") bones.r_upper = n;
-                if(n.name === "J_Bip_R_LowerArm") bones.r_lower = n;
-                if(n.name === "J_Bip_R_Hand") bones.r_hand = n;
-                if(n.name.toLowerCase().includes("head") && !n.name.includes("End")) bones.head = n;
-            }
-        });
-        scene.add(model);
-    });
+    function updateTextOutput() {
+        if(!room || !avatar) return;
+        const code = `// --- COPY TO MAIN SCRIPT ---\n\n` +
+        `room.position.set(${room.position.x.toFixed(2)}, ${room.position.y.toFixed(2)}, ${room.position.z.toFixed(2)});\n` +
+        `room.scale.set(${room.scale.x.toFixed(2)}, ${room.scale.x.toFixed(2)}, ${room.scale.x.toFixed(2)});\n\n` +
+        `avatarModel.position.set(${avatar.position.x.toFixed(2)}, ${avatar.position.y.toFixed(2)}, ${avatar.position.z.toFixed(2)});\n` +
+        `avatarModel.scale.set(${avatar.scale.x.toFixed(2)}, ${avatar.scale.x.toFixed(2)}, ${avatar.scale.x.toFixed(2)});`;
+        document.getElementById('output').value = code;
+    }
 
-    // Mouse click to select bone
-    window.addEventListener('mousedown', onMouseDown);
-    
-    // Manual Slider Input
-    const sliders = ['curX', 'curY', 'curZ'];
-    sliders.forEach(id => {
-        document.getElementById(id).addEventListener('input', (e) => {
-            if(selectedBone) {
-                selectedBone.rotation[id.slice(-1).toLowerCase()] = parseFloat(e.target.value);
-                document.getElementById('v'+id).innerText = e.target.value;
-            }
-        });
-    });
+    window.copyToClipboard = () => {
+        const textarea = document.getElementById('output');
+        textarea.select();
+        document.execCommand('copy');
+        const btn = document.querySelector('.btn-copy');
+        btn.innerText = "COPIED!";
+        setTimeout(() => btn.innerText = "COPY CODE", 2000);
+    };
 
     animate();
 }
 
-function onMouseDown(event) {
-    // Only check if clicking the viewer
-    if (event.clientX > window.innerWidth - 400) return;
-
-    mouse.x = (event.clientX / (window.innerWidth - 400)) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-    raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(model.children, true);
-
-    if (intersects.length > 0) {
-        // Find the closest bone to the click point
-        let obj = intersects[0].object;
-        let boneToAttach = null;
-
-        // Traverse up to find the bone influencing this part of the mesh
-        if(obj.isSkinnedMesh) {
-            // This is a simplified logic: usually you'd check bone weights, 
-            // but clicking near the head/arms usually hits specific sub-meshes.
-            // Let's toggle through your mapped bones based on proximity or name
-            const clickedName = obj.name.toLowerCase();
-            if(clickedName.includes('head')) boneToAttach = bones.head;
-            else if(clickedName.includes('arm')) boneToAttach = bones.r_upper; // Default
-            else boneToAttach = obj.parent; // Fallback
-        }
-
-        // For this specific VRM/GLB rig, let's allow manual cycle or direct select
-        // Better yet: use the intersects to find the bone name
-        if(boneToAttach) {
-            selectBone(boneToAttach);
-        }
-    }
-}
-
-function selectBone(bone) {
-    selectedBone = bone;
-    tControls.attach(bone);
-    document.getElementById('status').innerText = "Selected: " + bone.name;
-    updateSlidersFromBone(bone);
-}
-
-function updateSlidersFromBone(bone) {
-    ['x','y','z'].forEach(axis => {
-        const val = bone.rotation[axis].toFixed(2);
-        const id = 'cur' + axis.toUpperCase();
-        document.getElementById(id).value = val;
-        document.getElementById('v' + id).innerText = val;
-    });
-}
-
-function animate(){
+function animate() {
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
 }
-
-window.copyData = () => {
-    const data = {
-        thinking_pose: {
-            R_Upper: { x: +bones.r_upper.rotation.x.toFixed(2), y: +bones.r_upper.rotation.y.toFixed(2), z: +bones.r_upper.rotation.z.toFixed(2) },
-            R_Lower: { x: +bones.r_lower.rotation.x.toFixed(2), y: +bones.r_lower.rotation.y.toFixed(2), z: +bones.r_lower.rotation.z.toFixed(2) },
-            R_Hand:  { x: +bones.r_hand.rotation.x.toFixed(2),  y: +bones.r_hand.rotation.y.toFixed(2), z: +bones.r_hand.rotation.z.toFixed(2) },
-            Head:    { x: +bones.head.rotation.x.toFixed(2),    y: +bones.head.rotation.y.toFixed(2),    z: +bones.head.rotation.z.toFixed(2) }
-        }
-    };
-    document.getElementById('output').value = JSON.stringify(data, null, 2);
-}
-
 init();
 </script>
 </body>
