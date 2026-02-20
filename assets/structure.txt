@@ -1,7 +1,0 @@
-/assets
-     scene.js 
-     avatar.js 
-/core
-     chat.js 
-     emotion.js 
-main.js 

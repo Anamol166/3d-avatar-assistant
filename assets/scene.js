@@ -8,24 +8,32 @@ export function initScene() {
     scene.background = new THREE.Color(0x050505);
 
     const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 1.4, 2.5);
+    camera.position.set(0, 1.4, 2.5); 
 
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); 
     renderer.outputEncoding = THREE.sRGBEncoding;
 
     const controls = new OrbitControls(camera, canvas);
     controls.enableDamping = true;
     controls.target.set(0, 1.2, 0);
-    controls.maxDistance = 3.5;
-    controls.enablePan = false;
+    controls.minDistance = 1.0;   
+    controls.maxDistance = 3.5;  
+    controls.enablePan = false;   
+    controls.maxPolarAngle = Math.PI / 2; 
+    controls.minPolarAngle = 0.5;
+    
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
 
     scene.add(new THREE.AmbientLight(0xffffff, 0.5));
     const dirLight = new THREE.DirectionalLight(0xffffff, 1);
     dirLight.position.set(5, 10, 5);
     scene.add(dirLight);
-
-    // Load Room
     const roomLoader = new GLTFLoader();
     roomLoader.load('/assets/textures/room.glb', (gltf) => {
         const room = gltf.scene;
