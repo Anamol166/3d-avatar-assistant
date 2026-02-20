@@ -2,8 +2,6 @@
 
 A real-time, interactive 3D AI assistant powered by **Google Gemini** (via OpenRouter), rendered in the browser using **Three.js**, with a Flask backend for chat, PDF generation, and Wikipedia research.
 
-![Luna Preview](assets/textures/room.glb)
-
 ---
 
 ## ✨ Features
