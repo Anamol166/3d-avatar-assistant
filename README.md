@@ -159,4 +159,4 @@ MIT License — free to use, modify, and distribute.
 
 ---
 
-> Built with ❤️ by [Anamol166](https://github.com/Anamol166)
+> Built with by [Anamol166](https://github.com/Anamol166)
