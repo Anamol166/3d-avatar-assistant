@@ -49,10 +49,7 @@ Assistant/
 ---
 
 ## 🌐 Live Demo
-```
 [![Watch Demo](https://img.youtube.com/vi/HI_wRxAzj5k/0.jpg)](https://youtu.be/HI_wRxAzj5k)
-
-```
 
 ## 🚀 Getting Started
 
