@@ -1,4 +1,4 @@
-import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
+import * as THREE from 'three';
 import { initScene } from './scene.js'; 
 import { loadAvatar, avatarData } from './avatar.js';
 import { updateMoodUI } from './core/emotion.js';

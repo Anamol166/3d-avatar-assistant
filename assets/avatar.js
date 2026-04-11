@@ -1,5 +1,5 @@
-import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
-import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/loaders/GLTFLoader.js';
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 export const avatarData = {
     model: null,

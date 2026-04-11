@@ -1,7 +1,7 @@
 import os
 import requests
 import json
-from flask import Flask, render_template, request, jsonify, session
+from flask import Flask, render_template, request, jsonify, session # type: ignore
 from tools.tools import create_pdf, search_wikipedia
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -14,7 +14,7 @@ app = Flask(
 
 #Api key here
 app.secret_key = 'luna_secret_key_123'
-API_KEY = "API KEY HERE" 
+API_KEY = "api_key" 
 
 @app.route('/')
 def index():
@@ -49,7 +49,7 @@ def chat():
             - Use occasional emojis. ✨
             SPECIAL TOOL - PDF MAKER:
             If and ONLY IF the user says 'MAKE PDF' or asks for a document, write the content and then append exactly this tag at the end: 
-            [PDF_CONTENT: put the text to be saved here
+            [PDF_CONTENT: put the text to be saved here]
             """
         }
 
