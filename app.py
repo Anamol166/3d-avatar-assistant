@@ -3,6 +3,7 @@ import requests
 import json
 from flask import Flask, render_template, request, jsonify, session # type: ignore
 from tools.tools import create_pdf, search_wikipedia
+from dotenv import load_dotenv
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -14,7 +15,8 @@ app = Flask(
 
 #Api key here
 app.secret_key = 'luna_secret_key_123'
-API_KEY = "api_key" 
+load_dotenv()
+API_KEY = os.getenv("API_KEY")
 
 @app.route('/')
 def index():

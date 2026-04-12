@@ -3,3 +3,4 @@ flask
 wikipedia-api
 fpdf
 unidecode
+dotenv

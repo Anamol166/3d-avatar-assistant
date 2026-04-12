@@ -68,7 +68,7 @@ pip install -r requirements.txt
 
 ### 3. Add Your API Key
 
-Open `app.py` and replace the placeholder with your [OpenRouter](https://openrouter.ai) API key:
+Create a `.env` file in the root directory:
 
 ```python
 API_KEY = "YOUR_OPENROUTER_API_KEY_HERE"
