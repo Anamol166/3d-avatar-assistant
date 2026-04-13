@@ -32,6 +32,23 @@ body {
     filter: drop-shadow(0 0 50px rgba(0, 212, 255, 0.1));
 }
 
+#chat-button{
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: #ffb3d9; 
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 100;
+}
+
 #chat-container {
     position: absolute;
     right: 30px;
@@ -44,11 +61,12 @@ body {
     -webkit-backdrop-filter: blur(25px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 28px;
-    display: flex;
+    display: none;
     flex-direction: column;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
     animation: slideUp 0.8s ease-out;
 }
+
 
 @keyframes slideUp {
     from { transform: translateY(30px); opacity: 0; }
@@ -65,19 +83,26 @@ body {
     text-transform: uppercase;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     gap: 10px;
 }
 
+ #close{
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+        cursor: pointer;
+        transition: color 0.3s ease;
+    }
+
 #chat-header::before {
-    content: '';
-    width: 8px;
-    height: 8px;
-    background: var(--secondary-neon);
-    border-radius: 50%;
-    box-shadow: 0 0 10px var(--secondary-neon);
-    animation: pulse 2s infinite;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition: color 0.3s ease;
 }
 
 @keyframes pulse {

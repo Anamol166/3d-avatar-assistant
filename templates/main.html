@@ -16,16 +16,16 @@
     <script type="module" src="/assets/main.js"></script>
 </head>
 <body>
+<div id="chat-button">💬</div>
 <div id="character-container">
     <canvas id="three-canvas"></canvas>
 </div>
-
-<div id="chat-container">
+    <div id="chat-container">
     <div id="chat-header">AI ASSISTANT</div>
+    <div id="close"> x </div>
     <div id="chat-messages">Link established...</div>
     <div id="command-bar">
       <div id="command-menu" class="command-popup">
-
     </div>
         <button id="commandBtn">> EXECUTE COMMAND</button>
     </div>
@@ -34,7 +34,9 @@
         <input type="text" id="userInput" placeholder="Type your message...">
         <button id="sendBtn">Send</button>
     </div>
+    </div>
 </div>
+<script src="/assets/ui.js"></script>
 <div id="ai-mood-panel">
     <div style="font-size: 10px; color: #888;">AI STATUS</div>
     <div id="status-text" style="font-weight: bold; color: #00d4ff;">IDLE</div>
