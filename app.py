@@ -1,4 +1,5 @@
 import os
+import re
 import requests
 import json
 from flask import Flask, render_template, request, jsonify, session # type: ignore
@@ -41,12 +42,18 @@ def chat():
             - Warm, helpful, and slightly witty.
             - You address the user as 'Boss'.
             - You live inside this 3D environment.
+            RULE (VERY IMPORTANT):
+            - Every response MUST start with ONE mood tag.
+            - Format: [Joy] or [Fun] or [Angry] or [Sorrow] or [Neutral]
+            - The mood tag MUST be the FIRST thing in the response.
+            - Example: [Joy] Hello Boss
+            - Do NOT skip it.
+            - Do NOT put mood anywhere else.
             YOUR TASKS:
             1. Task Management: Help the user organize their day.
             2. Web Search: Summarize information clearly.
             3. 3D Interaction: React to the environment.
             4. PDF Generation: Create PDFs when asked.
-            GUIDELINES:
             - Keep responses concise but impactful.
             - Use occasional emojis. ✨
             SPECIAL TOOL - PDF MAKER:
@@ -76,6 +83,15 @@ def chat():
             return jsonify({"response": "Luna's brain is offline. Check API credits!"})
 
         ai_text = result['choices'][0]['message']['content']
+        mood = "Neutral"
+        
+        match = re.match(r'^\[(.*?)\]\s*', ai_text)
+        if match:
+            mood = match.group(1)
+            ai_text = re.sub(r'^\[.*?\]\s*', '', ai_text)
+        print("RAW AI:", result['choices'][0]['message']['content'])  
+        print("CLEAN AI:", ai_text)
+        print("MOOD:", mood)
         #For Wiki search for pdf
         if "[WIKI_SEARCH:" in ai_text:
             chat_msg, rest = ai_text.split("[WIKI_SEARCH:", 1)
@@ -104,7 +120,10 @@ def chat():
         session['history'] = session['history'][-10:]
         session.modified = True
 
-        return jsonify({"response": ai_text})
+        return jsonify({
+            "response": ai_text,
+            "mood": mood
+})
 
     except Exception as e:
         print(f"Error: {e}")

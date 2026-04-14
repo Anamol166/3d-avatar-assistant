@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { initScene } from './scene.js'; 
 import { loadAvatar, avatarData } from './avatar.js';
-import { updateMoodUI } from './core/emotion.js';
+import { updateMoodUI, setThinking, setMood } from './core/emotion.js';
 import { sendMessage } from './core/chat.js';
 
 const BONE_DATA = {
@@ -16,12 +16,13 @@ const EMOTIONS = {
     Sorrow: { color: "#2196f3", name: "SAD" },
     Neutral: { color: "#00d4ff", name: "NEUTRAL" }
 };
-
-let currentEmotion = "Neutral";
 let thinking = false;
+function syncThinking(state) {
+    thinking = state;
+}
+
 let thinkingTimer = 0;
 let t = 0;
-
 const { scene, camera, renderer, controls } = initScene();
 loadAvatar(scene, BONE_DATA);
 
@@ -67,7 +68,7 @@ function updateBlink(faceMesh) {
     if (!faceMesh) return;
 
     const now = Date.now();
-    // Detect standard VRM or GLTF naming for blinks
+
     const dict = faceMesh.morphTargetDictionary;
     const blinkKey = dict['Blink'] !== undefined ? 'Blink' : 'Fcl_EYE_Close';
     const blinkIdx = dict[blinkKey];
@@ -93,7 +94,6 @@ function animate() {
         const speed = 0.08;
         const breath = Math.sin(avatarData.lifeTime) * 0.02;
         updateBlink(avatarData.blinkMesh);
-        updateMoodUI(currentEmotion, thinking);
 
         let target = (thinking || thinkingTimer > 0) ? {
             rx: 1.17, ry: -0.58, rz: -0.73,
@@ -116,10 +116,10 @@ function animate() {
 
         if (b.head) {
             if (!thinking && thinkingTimer <= 0) {
-                // PASS the bone to the function
+                
                 updateGaze(b.head); 
             } else {
-                // Manual thinking rotation
+            
                 b.head.rotation.x = lerp(b.head.rotation.x, target.hx + (Math.sin(t * 2) * 0.05), speed);
                 b.head.rotation.y = lerp(b.head.rotation.y, target.hy, speed);
                 b.head.rotation.z = lerp(b.head.rotation.z, target.hz, speed);
@@ -142,27 +142,35 @@ document.getElementById('sendBtn').onclick = async () => {
     const input = document.getElementById('userInput');
     const chatBox = document.getElementById('chat-messages');
     const text = input.value.trim();
+
     if (!text) return;
 
     chatBox.innerHTML += `<div class="user-msg"><b>You:</b> ${text}</div>`;
     input.value = '';
-    thinking = true;
-    thinkingTimer = 10;
 
-    const data = await sendMessage(text);
-    const responseText = data.response.toLowerCase();
+    syncThinking(true);
+    setThinking(true);
 
-    if (responseText.includes("haha") || responseText.includes("lol")) currentEmotion = "Fun";
-    else if (responseText.includes("happy")) currentEmotion = "Joy";
-    else if (responseText.includes("sorry")) currentEmotion = "Sorrow";
-    else if (responseText.includes("I am angry") || responseText.includes("angry")) currentEmotion = "Angry";
-    else currentEmotion = "Neutral";
-
-    thinking = false;
-    chatBox.innerHTML += `<div class="ai-msg"><b>Luna:</b> ${data.response}</div>`;
     chatBox.scrollTop = chatBox.scrollHeight;
-};
 
+    try {
+        const data = await sendMessage(text);
+
+        syncThinking(false);
+        setThinking(false);
+
+        setMood(data.mood);
+
+        chatBox.innerHTML += `<div class="ai-msg"><b>Luna:</b> ${data.response}</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+    } catch (err) {
+        syncThinking(false);
+        setThinking(false);
+
+        chatBox.innerHTML += `<div class="ai-msg">Error: Luna is offline 😢</div>`;
+    }
+};
 window.handleCommand = (cmd) => {
     document.getElementById('userInput').value = cmd;
     document.getElementById('sendBtn').click();
