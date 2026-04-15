@@ -19,4 +19,8 @@ closebutton.onclick = () =>{
     if (chatbox.style.display === "none"){
         popbutton.style.display = "flex";
     }
-}
+};
+
+setTimeout(() => {
+    document.getElementById("splash").remove();
+}, 3500); 
