@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { initScene } from './scene.js'; 
 import { loadAvatar, avatarData } from './avatar.js';
-import { updateMoodUI, setThinking, setMood } from './core/emotion.js';
+import { setThinking, setMood } from './core/emotion.js';
 import { sendMessage } from './core/chat.js';
 
 const BONE_DATA = {
@@ -16,6 +16,12 @@ const EMOTIONS = {
     Sorrow: { color: "#2196f3", name: "SAD" },
     Neutral: { color: "#00d4ff", name: "NEUTRAL" }
 };
+//Mood
+let currentMood = "Neutral";
+function syncMood(mood) {
+    currentMood = mood;
+}
+//Thinking 
 let thinking = false;
 function syncThinking(state) {
     thinking = state;
@@ -74,13 +80,13 @@ function updateBlink(faceMesh) {
     const blinkIdx = dict[blinkKey];
 
     if (now - lastBlinkTime > 4000) {
-        let progress = (now - lastBlinkTime - 4000) / 150; // 150ms blink speed
+        let progress = (now - lastBlinkTime - 4000) / 150; 
         
         if (progress <= 1) {
             faceMesh.morphTargetInfluences[blinkIdx] = Math.sin(progress * Math.PI);
         } else {
             faceMesh.morphTargetInfluences[blinkIdx] = 0;
-            lastBlinkTime = now + (Math.random() * 2000); // Randomize gap between blinks
+            lastBlinkTime = now + (Math.random() * 2000); 
         }
     }
 }
@@ -90,17 +96,19 @@ function animate() {
     t += 0.05;
     if (avatarData.model && avatarData.bones.rightArm) {
         avatarData.lifeTime += 0.03;
-        const b = avatarData.bones; 
+        const b = avatarData.bones;
         const speed = 0.08;
         const breath = Math.sin(avatarData.lifeTime) * 0.02;
         updateBlink(avatarData.blinkMesh);
 
         let target = (thinking || thinkingTimer > 0) ? {
             rx: 1.17, ry: -0.58, rz: -0.73,
-            rlz: -2.12, hx: -0.32, hy: -0.05, hz: 0.03
+            rlz: -2.12
         } : {
-            rx: BONE_DATA.R_Arm.x, ry: BONE_DATA.R_Arm.y, rz: BONE_DATA.R_Arm.z,
-            rlz: 0, hx: 0, hy: 0, hz: 0
+            rx: BONE_DATA.R_Arm.x,
+            ry: BONE_DATA.R_Arm.y,
+            rz: BONE_DATA.R_Arm.z,
+            rlz: 0
         };
 
         if (thinkingTimer > 0) thinkingTimer -= 0.05;
@@ -109,26 +117,41 @@ function animate() {
             b.rightArm.rotation.y = lerp(b.rightArm.rotation.y, target.ry, speed);
             b.rightArm.rotation.z = lerp(b.rightArm.rotation.z, target.rz + breath, speed);
         }
-        
         if (b.rightLowerArm) {
             b.rightLowerArm.rotation.z = lerp(b.rightLowerArm.rotation.z, target.rlz, speed);
         }
-
-        if (b.head) {
-            if (!thinking && thinkingTimer <= 0) {
-                
-                updateGaze(b.head); 
-            } else {
-            
-                b.head.rotation.x = lerp(b.head.rotation.x, target.hx + (Math.sin(t * 2) * 0.05), speed);
-                b.head.rotation.y = lerp(b.head.rotation.y, target.hy, speed);
-                b.head.rotation.z = lerp(b.head.rotation.z, target.hz, speed);
-            }
-        }
-
         if (b.leftArm) {
             b.leftArm.rotation.x = lerp(b.leftArm.rotation.x, BONE_DATA.L_Arm.x + breath, speed);
         }
+
+        if (b.head) {
+            if (thinking) {
+                 b.head.rotation.x = lerp(b.head.rotation.x, -0.3, 0.1);
+                 b.head.rotation.y = lerp(b.head.rotation.y, -0.1, 0.1);
+                 b.head.rotation.z = lerp(b.head.rotation.z, 0.05, 0.1);
+         } else {
+            if (currentMood === "Neutral") {
+            updateGaze(b.head);
+            }
+            if (currentMood === "Joy") {
+            b.head.rotation.x = lerp(b.head.rotation.x, -0.2, 0.15);
+            b.head.rotation.z = lerp(b.head.rotation.z, 0.25, 0.15);
+            }
+            else if (currentMood === "Angry") {
+            b.head.rotation.x = lerp(b.head.rotation.x, 0.4, 0.2);
+            b.head.rotation.y = Math.sin(t * 8) * 0.08;
+        }
+            else if (currentMood === "Sorrow") {
+            b.head.rotation.x = lerp(b.head.rotation.x, -0.4, 0.1);
+            b.head.rotation.z = lerp(b.head.rotation.z, -0.1, 0.1);
+        }
+            else if (currentMood === "Fun") {
+            b.head.rotation.z = Math.sin(t * 6) * 0.3;
+            b.head.rotation.x = -0.1;
+        }
+    }
+}
+
         avatarData.model.rotation.z = Math.sin(avatarData.lifeTime * 0.5) * 0.01;
         avatarData.model.rotation.x = Math.cos(avatarData.lifeTime * 0.3) * 0.01;
     }
@@ -160,6 +183,7 @@ document.getElementById('sendBtn').onclick = async () => {
         setThinking(false);
 
         setMood(data.mood);
+        syncMood(data.mood);
 
         chatBox.innerHTML += `<div class="ai-msg"><b>Luna:</b> ${data.response}</div>`;
         chatBox.scrollTop = chatBox.scrollHeight;
