@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mood Animation Editor</title>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.152.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.152.0/examples/jsm/"
+  }
+}
+</script>
+
+<style>
+body { margin:0; overflow:hidden; background:#111; color:white; font-family:sans-serif; }
+
+#ui {
+    position:fixed;
+    top:10px;
+    left:10px;
+    width:240px;
+    background:rgba(0,0,0,0.85);
+    padding:12px;
+    border-radius:10px;
+    font-size:12px;
+}
+
+button {
+    width:100%;
+    margin-top:10px;
+    padding:10px;
+    background:#00ffcc;
+    border:none;
+    cursor:pointer;
+    font-weight:bold;
+}
+button:hover { background:#00ccaa; }
+
+h3 { color:#00ffcc; margin:8px 0 5px; }
+
+select, input { width:100%; margin-bottom:5px; }
+</style>
+</head>
+
+<body>
+
+<div id="ui">
+    <h3>Mood Mode</h3>
+    <select id="mood">
+        <option value="Neutral">Neutral</option>
+        <option value="Joy">Joy 😄</option>
+        <option value="Angry">Angry 😡</option>
+        <option value="Sorrow">Sorrow 😢</option>
+        <option value="Thinking">Thinking 🤔</option>
+    </select>
+
+    <h3>Base Control</h3>
+    Head X <input id="hx" type="range" min="-1" max="1" step="0.01" value="0">
+    Head Y <input id="hy" type="range" min="-1" max="1" step="0.01" value="0">
+
+    Right Arm X <input id="rax" type="range" min="-3" max="3" step="0.01" value="0">
+    Right Arm Z <input id="raz" type="range" min="-2" max="2" step="0.01" value="0">
+
+    <button id="copy">Copy Mood Animation</button>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x111111);
+
+const camera = new THREE.PerspectiveCamera(50, innerWidth/innerHeight, 0.1, 100);
+camera.position.set(0,1.4,3);
+
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth, innerHeight);
+document.body.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0,1.2,0);
+controls.update();
+
+scene.add(new THREE.AmbientLight(0xffffff,0.7));
+const light = new THREE.DirectionalLight(0xffffff,1.2);
+light.position.set(3,5,2);
+scene.add(light);
+
+let bones = {};
+let model;
+
+const loader = new GLTFLoader();
+loader.load('./character.glb', (gltf) => {
+    model = gltf.scene;
+    scene.add(model);
+
+    model.traverse((n)=>{
+        if(n.isBone){
+            if(n.name==="J_Bip_C_Head") bones.head=n;
+            if(n.name==="J_Bip_R_UpperArm") bones.rArm=n;
+        }
+    });
+});
+
+const lerp = (a,b,t)=>a+(b-a)*t;
+
+const MOODS = {
+    Neutral:  {hx:0, hy:0, rax:0, raz:0},
+    Joy:      {hx:-0.2, hy:0.2, rax:0.5, raz:0.3},
+    Angry:    {hx:0.4, hy:0, rax:-0.6, raz:0.2},
+    Sorrow:   {hx:0.6, hy:0, rax:-0.2, raz:-0.3},
+    Thinking: {hx:-0.3, hy:-0.2, rax:0.2, raz:0}
+};
+
+function animate(){
+    requestAnimationFrame(animate);
+
+    if(!bones.head) return;
+
+    const mood = document.getElementById("mood").value;
+    const m = MOODS[mood];
+
+    const base_hx = parseFloat(hx.value);
+    const base_hy = parseFloat(hy.value);
+    const base_rax = parseFloat(rax.value);
+    const base_raz = parseFloat(raz.value);
+
+    bones.head.rotation.x = lerp(bones.head.rotation.x, base_hx + m.hx, 0.1);
+    bones.head.rotation.y = lerp(bones.head.rotation.y, base_hy + m.hy, 0.1);
+
+    bones.rArm.rotation.x = lerp(bones.rArm.rotation.x, base_rax + m.rax, 0.1);
+    bones.rArm.rotation.z = lerp(bones.rArm.rotation.z, base_raz + m.raz, 0.1);
+
+    renderer.render(scene,camera);
+}
+animate();
+
+document.getElementById("copy").onclick = ()=>{
+
+    const mood = document.getElementById("mood").value;
+
+    const data = {
+        mood,
+        head: {
+            x: hx.value,
+            y: hy.value
+        },
+        rightArm: {
+            x: rax.value,
+            z: raz.value
+        }
+    };
+
+    navigator.clipboard.writeText(JSON.stringify(data,null,2));
+    alert("Copied Mood Animation!");
+};
+</script>
+
+</body>
+</html>

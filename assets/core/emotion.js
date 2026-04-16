@@ -6,7 +6,15 @@ export const EMOTIONS = {
     Neutral: { color: "#00d4ff", name: "NEUTRAL" }
 };
 
-export function updateMoodUI(currentEmotion, thinking) {
+function normalizeMood(mood) {
+    if (!mood) return "Neutral";
+
+    mood = mood.toString().trim();
+
+    return mood.charAt(0).toUpperCase() + mood.slice(1).toLowerCase();
+}
+
+export function updateMoodUI(currentEmotion = "Neutral", thinking = false) {
     const fill = document.getElementById('mood-fill');
     const statusText = document.getElementById('status-text');
     const moodDisplay = document.getElementById('mood-display');
@@ -14,21 +22,29 @@ export function updateMoodUI(currentEmotion, thinking) {
 
     if (!fill || !statusText || !moodDisplay || !panel) return;
 
-    // current emotion
-    const config = EMOTIONS[currentEmotion] || EMOTIONS.Neutral;
+    
+    const safeEmotion = normalizeMood(currentEmotion);
+    const config = EMOTIONS[safeEmotion] || EMOTIONS.Neutral;
 
-    // update text
     statusText.innerText = thinking ? "THINKING..." : "IDLE";
-    statusText.style.color = thinking ? "#ffeb3b" : "#00d4ff";
+    statusText.style.color = thinking ? "#ffeb3b" : config.color;
+
     moodDisplay.innerText = config.name;
     moodDisplay.style.color = config.color;
     fill.style.backgroundColor = config.color;
     panel.style.borderLeftColor = config.color;
-
-    // update mood
     if (thinking) {
         fill.style.width = "30%";
+        fill.style.opacity = "0.6";
     } else {
-        fill.style.width = (currentEmotion === "Neutral") ? "60%" : "100%";
+        fill.style.width = (safeEmotion === "Neutral") ? "60%" : "100%";
+        fill.style.opacity = "1";
     }
+}
+
+export function setThinking() {
+    updateMoodUI("Neutral", true);
+}
+export function setMood(mood) {
+    updateMoodUI(mood, false);
 }
