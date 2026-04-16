@@ -3,15 +3,8 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 export const avatarData = {
     model: null,
-    bones: {
-        leftArm: null,
-        rightArm: null,
-        leftLowerArm: null,
-        rightLowerArm: null,
-        rightHand: null,
-        rightShoulder: null,
-        head: null
-    },
+    bones: {},
+    boneMap: {},
     blinkMesh: null,
     lifeTime: 0
 };
@@ -26,6 +19,8 @@ export function loadAvatar(scene, BONE_DATA) {
         avatarData.model.position.set(0,0,0)
         avatarData.model.traverse((node) => {
             if (node.isBone) {
+                avatarData.boneMap[node.name] = node;
+                avatarData.bones[node.name] = node;
                 if (node.name === "J_Bip_L_UpperArm") avatarData.bones.leftArm = node;
                 if (node.name === "J_Bip_R_UpperArm") avatarData.bones.rightArm = node;
                 if (node.name === "J_Bip_L_LowerArm") avatarData.bones.leftLowerArm = node;
@@ -45,12 +40,15 @@ export function loadAvatar(scene, BONE_DATA) {
             }
         });
 
-        if (avatarData.bones.leftArm) {
-            avatarData.bones.leftArm.rotation.set(BONE_DATA.L_Arm.x, BONE_DATA.L_Arm.y, BONE_DATA.L_Arm.z);
+        for (const boneName in BONE_DATA) {
+            if (avatarData.boneMap[boneName]) {
+                avatarData.boneMap[boneName].rotation.set(
+                BONE_DATA[boneName].x,
+                BONE_DATA[boneName].y,
+                BONE_DATA[boneName].z
+            );
         }
-        if (avatarData.bones.rightArm) {
-            avatarData.bones.rightArm.rotation.set(BONE_DATA.R_Arm.x, BONE_DATA.R_Arm.y, BONE_DATA.R_Arm.z);
-        }
+    }
 
         avatarData.model.updateMatrixWorld(true);
         
@@ -60,5 +58,6 @@ export function loadAvatar(scene, BONE_DATA) {
 
         scene.add(avatarData.model);
         console.log("Avatar Loaded & Bones Mapped", avatarData.bones);
+        console.log("All bone names:", Object.keys(avatarData.boneMap));
     });
 }

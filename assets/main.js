@@ -4,40 +4,74 @@ import { loadAvatar, avatarData } from './avatar.js';
 import { setThinking, setMood } from './core/emotion.js';
 import { sendMessage } from './core/chat.js';
 
+// Bones
 const BONE_DATA = {
-    L_Arm: { x: 0.02, y: 0.07, z: 1.29 },
-    R_Arm: { x: 0.19, y: -0.36, z: -1.25 }
+  J_Bip_L_UpperArm: { x: 0, y: -0.03, z: 1.18 },
+  J_Bip_L_LowerArm: { x: -0.44, y: -0.32, z: 0.09 },
+  J_Bip_L_Hand: { x: 0, y: -0.03, z: 0.43 },
+  J_Bip_R_UpperArm: { x: 0, y: 0.03, z: -1.18 },
+  J_Bip_R_LowerArm: { x: 0, y: 0.33, z: -0.18 },
+  J_Bip_R_Hand: { x: -0.18, y: 0.28, z: -0.51 }
 };
 
-const EMOTIONS = {
-    Joy: { color: "#4caf50", name: "HAPPY" },
-    Fun: { color: "#ffeb3b", name: "LAUGH" },
-    Angry: { color: "#f44336", name: "ANGRY" },
-    Sorrow: { color: "#2196f3", name: "SAD" },
-    Neutral: { color: "#00d4ff", name: "NEUTRAL" }
+const SAD_POSE = {
+  "J_Bip_C_Neck": { x: -0.44, y: -0.06, z: -0.08 }
+}
+
+const THINKING_POSE = {
+  "J_Bip_C_Head": { x: 0.02, y: -0.06, z: -0.01 },
+  "J_Bip_R_Shoulder": { x: -0.03, y: 0.57, z: -0.13 },
+  "J_Bip_R_UpperArm": { x: 0, y: 0.14, z: -0.60 },
+  "J_Bip_R_LowerArm": { x: 0.26, y: 2.39, z: 0.04 },
+  "J_Bip_R_Hand": { x: 1.71, y: 0.07, z: -0.71 },
+  "J_Bip_R_Index1": { x: 0, y: 0, z: 0 },
+  "J_Bip_R_Index2": { x: 0, y: 0, z: 0 },
+  "J_Bip_R_Index3": { x: 0.09, y: 0, z: -0.01 },
+  "J_Bip_R_Middle1": { x: 0.09, y: 0, z: -1.63 },
+  "J_Bip_R_Middle2": { x: 0.09, y: 0, z: -1.12 },
+  "J_Bip_R_Middle3": { x: 0.09, y: 0, z: -1.0 },
+  "J_Bip_R_Ring1": { x: 0.09, y: 0, z: -1.75 },
+  "J_Bip_R_Ring2": { x: 0.09, y: 0, z: -1.36 },
+  "J_Bip_R_Ring3": { x: 0.09, y: 0, z: -0.54 },
+  "J_Bip_R_Little1": { x: 0.09, y: 0, z: -1.34 },
+  "J_Bip_R_Little2": { x: 0.09, y: 0, z: -1.63 },
+  "J_Bip_R_Little3": { x: 0.09, y: 0, z: -0.42 },
+  "J_Bip_R_Thumb1": { x: 0.23, y: 0.16, z: 0.26 },
+  "J_Bip_R_Thumb2": { x: -0.1, y: -1.34, z: -0.64 },
+  "J_Bip_R_Thumb3": { x: -0.1, y: -0.85, z: 0.26 }
 };
-//Mood
+
+//Names
 let currentMood = "Neutral";
-function syncMood(mood) {
-    currentMood = mood;
-}
-//Thinking 
 let thinking = false;
-function syncThinking(state) {
-    thinking = state;
-}
-
-let thinkingTimer = 0;
 let t = 0;
-const { scene, camera, renderer, controls } = initScene();
-loadAvatar(scene, BONE_DATA);
-
-const lerp = (a, b, t) => a + (b - a) * t;
 let lastGazeChange = 0;
 let lastBlinkTime = 0;
 let gazeTarget = new THREE.Vector3(0, 1.4, 4);
 let isMouseActive = false;
 let mouseTimer;
+let basePoseCaptured = false;
+let basePose = {}; 
+
+const { scene, camera, renderer, controls } = initScene();
+loadAvatar(scene, BONE_DATA);
+const lerp = (a, b, t) => a + (b - a) * t;
+function captureBasePose() {
+    if (!avatarData.boneMap) return;
+    Object.keys(avatarData.boneMap).forEach(name => {
+        const bone = avatarData.boneMap[name];
+        basePose[name] = {
+            x: bone.rotation.x,
+            y: bone.rotation.y,
+            z: bone.rotation.z
+        };
+    });
+    basePoseCaptured = true;
+    console.log("✓ Base pose captured for all bones.");
+}
+
+function syncMood(mood) { currentMood = mood; }
+function syncThinking(state) { thinking = state; }
 
 window.addEventListener('mousemove', (event) => {
     isMouseActive = true;
@@ -47,9 +81,7 @@ window.addEventListener('mousemove', (event) => {
     gazeTarget.y = 1.2 + (mouseYPercent * 1.6); 
     gazeTarget.z = 2; 
     clearTimeout(mouseTimer);
-    mouseTimer = setTimeout(() => {
-        isMouseActive = false;
-    }, 3000);
+    mouseTimer = setTimeout(() => { isMouseActive = false; }, 3000);
 });
 
 function updateGaze(headBone) {
@@ -70,18 +102,15 @@ function updateGaze(headBone) {
     const followSpeed = isMouseActive ? 0.05 : 0.02;
     headBone.quaternion.slerp(dummy.quaternion, followSpeed);
 }
+
 function updateBlink(faceMesh) {
     if (!faceMesh) return;
-
     const now = Date.now();
-
     const dict = faceMesh.morphTargetDictionary;
     const blinkKey = dict['Blink'] !== undefined ? 'Blink' : 'Fcl_EYE_Close';
     const blinkIdx = dict[blinkKey];
-
     if (now - lastBlinkTime > 4000) {
         let progress = (now - lastBlinkTime - 4000) / 150; 
-        
         if (progress <= 1) {
             faceMesh.morphTargetInfluences[blinkIdx] = Math.sin(progress * Math.PI);
         } else {
@@ -91,67 +120,57 @@ function updateBlink(faceMesh) {
     }
 }
 
-function animate() {
-    requestAnimationFrame(animate);
-    t += 0.05;
-    if (avatarData.model && avatarData.bones.rightArm) {
-        avatarData.lifeTime += 0.03;
-        const b = avatarData.bones;
-        const speed = 0.08;
-        const breath = Math.sin(avatarData.lifeTime) * 0.02;
-        updateBlink(avatarData.blinkMesh);
+function applyPose(targetPose, t = 0.1) {
+    const bones = avatarData.boneMap;
+    if (!bones) return;
 
-        let target = (thinking || thinkingTimer > 0) ? {
-            rx: 1.17, ry: -0.58, rz: -0.73,
-            rlz: -2.12
-        } : {
-            rx: BONE_DATA.R_Arm.x,
-            ry: BONE_DATA.R_Arm.y,
-            rz: BONE_DATA.R_Arm.z,
-            rlz: 0
-        };
-
-        if (thinkingTimer > 0) thinkingTimer -= 0.05;
-        if (b.rightArm) {
-            b.rightArm.rotation.x = lerp(b.rightArm.rotation.x, target.rx, speed);
-            b.rightArm.rotation.y = lerp(b.rightArm.rotation.y, target.ry, speed);
-            b.rightArm.rotation.z = lerp(b.rightArm.rotation.z, target.rz + breath, speed);
-        }
-        if (b.rightLowerArm) {
-            b.rightLowerArm.rotation.z = lerp(b.rightLowerArm.rotation.z, target.rlz, speed);
-        }
-        if (b.leftArm) {
-            b.leftArm.rotation.x = lerp(b.leftArm.rotation.x, BONE_DATA.L_Arm.x + breath, speed);
-        }
-
-        if (b.head) {
-            if (thinking) {
-                 b.head.rotation.x = lerp(b.head.rotation.x, -0.3, 0.1);
-                 b.head.rotation.y = lerp(b.head.rotation.y, -0.1, 0.1);
-                 b.head.rotation.z = lerp(b.head.rotation.z, 0.05, 0.1);
-         } else {
-            if (currentMood === "Neutral") {
-            updateGaze(b.head);
-            }
-            if (currentMood === "Joy") {
-            b.head.rotation.x = lerp(b.head.rotation.x, -0.2, 0.15);
-            b.head.rotation.z = lerp(b.head.rotation.z, 0.25, 0.15);
-            }
-            else if (currentMood === "Angry") {
-            b.head.rotation.x = lerp(b.head.rotation.x, 0.4, 0.2);
-            b.head.rotation.y = Math.sin(t * 8) * 0.08;
-        }
-            else if (currentMood === "Sorrow") {
-            b.head.rotation.x = lerp(b.head.rotation.x, -0.4, 0.1);
-            b.head.rotation.z = lerp(b.head.rotation.z, -0.1, 0.1);
-        }
-            else if (currentMood === "Fun") {
-            b.head.rotation.z = Math.sin(t * 6) * 0.3;
-            b.head.rotation.x = -0.1;
+    for (const boneName in targetPose) {
+        const bone = bones[boneName];
+        if (bone) {
+            const target = targetPose[boneName];
+            bone.rotation.x = lerp(bone.rotation.x, target.x, t);
+            bone.rotation.y = lerp(bone.rotation.y, target.y, t);
+            bone.rotation.z = lerp(bone.rotation.z, target.z, t);
         }
     }
 }
 
+function animate() {
+    requestAnimationFrame(animate);
+    t += 0.05;
+
+    if (avatarData.model) {
+        if (!basePoseCaptured && Object.keys(avatarData.boneMap).length > 0) {
+            captureBasePose();
+        }
+        avatarData.lifeTime += 0.03;
+        updateBlink(avatarData.blinkMesh);
+        const b = avatarData.bones;
+        if (thinking) {
+            applyPose(THINKING_POSE, 0.08);
+            if (b.head) {
+                b.head.rotation.x = lerp(b.head.rotation.x, -0.3, 0.1);
+                b.head.rotation.y = lerp(b.head.rotation.y, -0.1, 0.1);
+            }
+        } else if (basePoseCaptured) {
+            applyPose(basePose, 0.06);
+            if (b.head) {
+                if (currentMood === "Neutral") {
+                    updateGaze(b.head);
+                } else if (currentMood === "Joy") {
+                    b.head.rotation.x = lerp(b.head.rotation.x, -0.2, 0.15);
+                    b.head.rotation.z = lerp(b.head.rotation.z, 0.25, 0.15);
+                } else if (currentMood === "Angry") {
+                    b.head.rotation.x = lerp(b.head.rotation.x, 0.4, 0.2);
+                    b.head.rotation.y = Math.sin(t * 8) * 0.08;
+                } else if (currentMood === "Sorrow") {
+                    applyPose(SAD_POSE, 0.08);
+                } else if (currentMood === "Fun") {
+                    b.head.rotation.z = Math.sin(t * 6) * 0.3;
+                    b.head.rotation.x = -0.1;
+                }
+            }
+        }
         avatarData.model.rotation.z = Math.sin(avatarData.lifeTime * 0.5) * 0.01;
         avatarData.model.rotation.x = Math.cos(avatarData.lifeTime * 0.3) * 0.01;
     }
@@ -161,6 +180,7 @@ function animate() {
 }
 animate();
 
+// UI Handling
 document.getElementById('sendBtn').onclick = async () => {
     const input = document.getElementById('userInput');
     const chatBox = document.getElementById('chat-messages');

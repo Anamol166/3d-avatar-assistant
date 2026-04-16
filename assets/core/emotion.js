@@ -1,8 +1,8 @@
 export const EMOTIONS = {
-    Joy:     { color: "#4caf50", name: "HAPPY" },
-    Fun:     { color: "#ffeb3b", name: "LAUGH" },
-    Angry:   { color: "#f44336", name: "ANGRY" },
-    Sorrow:  { color: "#2196f3", name: "SAD" },
+    Joy: { color: "#4caf50", name: "HAPPY" },
+    Fun: { color: "#ffeb3b", name: "LAUGH" },
+    Angry: { color: "#f44336", name: "ANGRY" },
+    Sorrow: { color: "#2196f3", name: "SAD" },
     Neutral: { color: "#00d4ff", name: "NEUTRAL" }
 };
 

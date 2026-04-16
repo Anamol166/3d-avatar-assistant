@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Mood Animation Editor</title>
+<title>Full Bone Editor</title>
 
 <script type="importmap">
 {
@@ -14,56 +14,59 @@
 </script>
 
 <style>
-body { margin:0; overflow:hidden; background:#111; color:white; font-family:sans-serif; }
+body {
+    margin: 0;
+    overflow: hidden;
+    background: #111;
+    color: white;
+    font-family: sans-serif;
+}
 
 #ui {
-    position:fixed;
-    top:10px;
-    left:10px;
-    width:240px;
-    background:rgba(0,0,0,0.85);
-    padding:12px;
-    border-radius:10px;
-    font-size:12px;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    width: 260px;
+    background: rgba(0,0,0,0.85);
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 12px;
+}
+
+h3 { margin: 8px 0 5px; color: #00ffcc; }
+
+select, input {
+    width: 100%;
+    margin-bottom: 6px;
 }
 
 button {
-    width:100%;
-    margin-top:10px;
-    padding:10px;
-    background:#00ffcc;
-    border:none;
-    cursor:pointer;
-    font-weight:bold;
+    width: 100%;
+    padding: 10px;
+    background: #00ffcc;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
 }
-button:hover { background:#00ccaa; }
 
-h3 { color:#00ffcc; margin:8px 0 5px; }
-
-select, input { width:100%; margin-bottom:5px; }
+button:hover {
+    background: #00ccaa;
+}
 </style>
 </head>
 
 <body>
 
 <div id="ui">
-    <h3>Mood Mode</h3>
-    <select id="mood">
-        <option value="Neutral">Neutral</option>
-        <option value="Joy">Joy 😄</option>
-        <option value="Angry">Angry 😡</option>
-        <option value="Sorrow">Sorrow 😢</option>
-        <option value="Thinking">Thinking 🤔</option>
-    </select>
+    <h3>Bone Selector</h3>
+    <select id="boneSelect"></select>
 
-    <h3>Base Control</h3>
-    Head X <input id="hx" type="range" min="-1" max="1" step="0.01" value="0">
-    Head Y <input id="hy" type="range" min="-1" max="1" step="0.01" value="0">
+    <h3>Rotation Control</h3>
+    X <input id="bx" type="range" min="-3" max="3" step="0.01" value="0">
+    Y <input id="by" type="range" min="-3" max="3" step="0.01" value="0">
+    Z <input id="bz" type="range" min="-3" max="3" step="0.01" value="0">
 
-    Right Arm X <input id="rax" type="range" min="-3" max="3" step="0.01" value="0">
-    Right Arm Z <input id="raz" type="range" min="-2" max="2" step="0.01" value="0">
-
-    <button id="copy">Copy Mood Animation</button>
+    <button id="copy">Copy Full Pose</button>
 </div>
 
 <script type="module">
@@ -75,89 +78,93 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 
 const camera = new THREE.PerspectiveCamera(50, innerWidth/innerHeight, 0.1, 100);
-camera.position.set(0,1.4,3);
+camera.position.set(0, 1.5, 3);
 
-const renderer = new THREE.WebGLRenderer({antialias:true});
+const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(innerWidth, innerHeight);
 document.body.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(0,1.2,0);
+controls.target.set(0, 1.2, 0);
 controls.update();
 
-scene.add(new THREE.AmbientLight(0xffffff,0.7));
-const light = new THREE.DirectionalLight(0xffffff,1.2);
-light.position.set(3,5,2);
+scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+
+const light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(3, 5, 2);
 scene.add(light);
 
 let bones = {};
-let model;
+let boneList = [];
+let activeBone = null;
+
+const boneSelect = document.getElementById("boneSelect");
 
 const loader = new GLTFLoader();
 loader.load('./character.glb', (gltf) => {
-    model = gltf.scene;
+    const model = gltf.scene;
     scene.add(model);
 
-    model.traverse((n)=>{
-        if(n.isBone){
-            if(n.name==="J_Bip_C_Head") bones.head=n;
-            if(n.name==="J_Bip_R_UpperArm") bones.rArm=n;
+    const uniqueBones = new Set();
+
+    model.traverse((n) => {
+        if (n.isBone) {
+            uniqueBones.add(n.name);
+            bones[n.name] = n;
         }
     });
+
+    boneList = Array.from(uniqueBones);
+
+    boneList.forEach(name => {
+        const opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = name;
+        boneSelect.appendChild(opt);
+    });
+
+    activeBone = bones[boneList[0]];
 });
 
-const lerp = (a,b,t)=>a+(b-a)*t;
-
-const MOODS = {
-    Neutral:  {hx:0, hy:0, rax:0, raz:0},
-    Joy:      {hx:-0.2, hy:0.2, rax:0.5, raz:0.3},
-    Angry:    {hx:0.4, hy:0, rax:-0.6, raz:0.2},
-    Sorrow:   {hx:0.6, hy:0, rax:-0.2, raz:-0.3},
-    Thinking: {hx:-0.3, hy:-0.2, rax:0.2, raz:0}
+boneSelect.onchange = () => {
+    activeBone = bones[boneSelect.value];
 };
 
-function animate(){
+const bx = document.getElementById("bx");
+const by = document.getElementById("by");
+const bz = document.getElementById("bz");
+
+function animate() {
     requestAnimationFrame(animate);
 
-    if(!bones.head) return;
+    if (activeBone) {
+        activeBone.rotation.x = parseFloat(bx.value);
+        activeBone.rotation.y = parseFloat(by.value);
+        activeBone.rotation.z = parseFloat(bz.value);
+    }
 
-    const mood = document.getElementById("mood").value;
-    const m = MOODS[mood];
-
-    const base_hx = parseFloat(hx.value);
-    const base_hy = parseFloat(hy.value);
-    const base_rax = parseFloat(rax.value);
-    const base_raz = parseFloat(raz.value);
-
-    bones.head.rotation.x = lerp(bones.head.rotation.x, base_hx + m.hx, 0.1);
-    bones.head.rotation.y = lerp(bones.head.rotation.y, base_hy + m.hy, 0.1);
-
-    bones.rArm.rotation.x = lerp(bones.rArm.rotation.x, base_rax + m.rax, 0.1);
-    bones.rArm.rotation.z = lerp(bones.rArm.rotation.z, base_raz + m.raz, 0.1);
-
-    renderer.render(scene,camera);
+    renderer.render(scene, camera);
 }
 animate();
 
-document.getElementById("copy").onclick = ()=>{
+document.getElementById("copy").onclick = () => {
+    let data = {};
 
-    const mood = document.getElementById("mood").value;
+    boneList.forEach(name => {
+        const b = bones[name];
+        data[name] = {
+            x: b.rotation.x,
+            y: b.rotation.y,
+            z: b.rotation.z
+        };
+    });
 
-    const data = {
-        mood,
-        head: {
-            x: hx.value,
-            y: hy.value
-        },
-        rightArm: {
-            x: rax.value,
-            z: raz.value
-        }
-    };
-
-    navigator.clipboard.writeText(JSON.stringify(data,null,2));
-    alert("Copied Mood Animation!");
+    navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+    alert("Full pose copied!");
 };
+</script>
+<script type="module">
+    
 </script>
 
 </body>

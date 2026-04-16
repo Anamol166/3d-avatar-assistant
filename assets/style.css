@@ -88,15 +88,32 @@ body {
     gap: 10px;
 }
 
- #close{
-        position: absolute;
-        top: 12px;
-        right: 12px;
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.6);
-        cursor: pointer;
-        transition: color 0.3s ease;
-    }
+ .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 18px;
+    font-weight: bold;
+
+    color: #fff;
+    background: rgba(255, 0, 0, 0.2);
+    border: 1px solid rgba(255, 0, 0, 0.4);
+    border-radius: 6px;
+
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.close-btn:hover {
+    background: rgba(255, 0, 0, 0.5);
+    transform: scale(1.1);
+}
 
 #chat-header::before {
     font-size: 14px;
@@ -174,12 +191,13 @@ button#sendBtn {
     color: white;
     width: 48px; 
     height: 48px;
-    border-radius: 50%;
+    border-radius: 10px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
+    font-family: Arial, Helvetica, sans-serif;
     box-shadow: 0 4px 15px rgba(255, 105, 180, 0.2);
 }
 
@@ -273,14 +291,13 @@ button#sendBtn:active {
 
 /*Mobile*/
 @media (max-width: 768px) {
-
     body {
         overflow: hidden;
     }
 
     #chat-button {
-        width: 52px;
-        height: 52px;
+        width: 60px;
+        height: 60px;
         font-size: 20px;
         bottom: 18px;
         right: 18px;
@@ -288,13 +305,10 @@ button#sendBtn:active {
     }
 
     #chat-container {
-        width: 100%;
-        height: 80vh;
-        right: 0;
-        bottom: 0;
-        border-radius: 24px 24px 0 0;
-        max-height: 80vh;
-        
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        z-index: 100;
     }
 
     #chat-header {
@@ -330,11 +344,10 @@ button#sendBtn:active {
     }
 
     #ai-mood-panel {
+        position: fixed;
         top: 10px;
-        left: 10px;
-        width: 150px;
-        padding: 12px;
-        font-size: 12px;
+        right: 10px;
+        z-index: 50;
     }
 
     #mood-display {
@@ -342,19 +355,22 @@ button#sendBtn:active {
     }
 
     #three-canvas {
-        transform: scale(1.05);
+        width: 100%;
+        height: 100%;
     }
 }
 
 @media (max-width: 420px) {
-
     #chat-container {
-        height: 85vh;
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        z-index: 100;
     }
 
     #chat-button {
-        width: 48px;
-        height: 48px;
+        width: 60px;
+        height: 60px;
         font-size: 18px;
         position: fixed;
     }
