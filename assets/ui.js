@@ -45,6 +45,14 @@ window.addEventListener("DOMContentLoaded", () => {
         alert("Please select a character first!");
         return;
     }
+     
+    fetch('/set_character', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ character: window.selectedCharacter })
+    });
 
     characterSelect.style.opacity = "0";
     characterSelect.style.transition = "opacity 0.4s ease";
