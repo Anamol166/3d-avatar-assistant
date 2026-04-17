@@ -26,9 +26,6 @@ Both avatars are fully animated 3D GLB models with emotion, gaze, and chat-drive
 
 ## 📁 Project Structure
 
-
-## 📁 Project Structure
-
 ```
 Assistant/
 ├── app.py                  # Flask backend — routes, chat API, session handling
