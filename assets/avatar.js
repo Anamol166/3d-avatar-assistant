@@ -14,14 +14,10 @@ export function loadAvatar(scene, BONE_DATA) {
     let modelPath = '';
 
     if (selection === 'female') {
-        modelPath = '/female.glb';
+        modelPath = '/assets/female.glb';
     } else if (selection === 'male') {
-        modelPath = '/male.glb';
-    } else {
-        console.warn("No selection detected, defaulting to male.");
         modelPath = '/assets/male.glb';
-    }
-
+    } else{}
     const loader = new GLTFLoader();
     if (avatarData.model) {
         scene.remove(avatarData.model);

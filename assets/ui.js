@@ -12,6 +12,13 @@ popbutton.onclick = () =>{
     }
 };
 
+popbutton.addEventListener("click", () => {
+    if (!window.avatarLoaded && window.selectedCharacter) {
+        console.log("Loading avatar for:", window.selectedCharacter);
+        window.avatarLoaded = true;
+    }
+});
+
 closebutton.onclick = () =>{
     if (chatbox.style.display === "flex" ){
         chatbox.style.display = "none";
@@ -33,16 +40,24 @@ window.addEventListener("DOMContentLoaded", () => {
         characterSelect.style.display = "flex";
     }, 3500);
 
-    confirmBtn.onclick = () => {
-        characterSelect.style.opacity = "0";
-        characterSelect.style.transition = "opacity 0.4s ease";
+      confirmBtn.onclick = () => {
+    if (!window.selectedCharacter) {
+        alert("Please select a character first!");
+        return;
+    }
 
-        setTimeout(() => {
-            characterSelect.style.display = "none";
-            characterSelect.classList.add("hidden");
-            document.getElementById("chat-button").style.display = "flex";
-        }, 400);
-    };
+    characterSelect.style.opacity = "0";
+    characterSelect.style.transition = "opacity 0.4s ease";
+
+    setTimeout(() => {
+        characterSelect.style.display = "none";
+        document.getElementById("chat-button").style.display = "flex";
+        import('./main.js').then(module => {
+            module.loadSelectedAvatar();
+        });
+
+    }, 400);
+};
 });
 
 function setChar(element, gender) {
@@ -50,6 +65,7 @@ function setChar(element, gender) {
         opt.classList.remove('selected');
     });
     element.classList.add('selected');
+    window.selectedCharacter = gender;
     console.log("Selected Model:", gender);
 }
 document.querySelectorAll('.char-card').forEach(card => {
