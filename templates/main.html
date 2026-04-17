@@ -26,6 +26,31 @@
         </div>
     </div>
 </div>
+<div id="character-select" class="hidden">
+    <div class="cartoon-bg">
+        <div class="blob top-left"></div>
+        <div class="blob bottom-right"></div>
+        <div class="blob mid-right"></div>
+        <div class="blob top-right"></div>
+    </div>
+    <h2>Select Character Model</h2>
+    <div class="selection-container">
+        <div class="char-option" onclick="setChar(this, 'male')">
+            <div class="char-card">
+                <img src="assets/male-model.jpg" alt="Male">
+            </div>
+            <label>Lukas</label>
+        </div>
+        
+        <div class="char-option" onclick="setChar(this, 'female')">
+            <div class="char-card">
+                <img src="assets/female-model.jpg" alt="Female">
+            </div>
+            <label>Luna</label>
+        </div>
+    </div>
+    <button id="confirmBtn">Confirm</button>
+</div>
 <div id="chat-button">💬</div>
 <div id="character-container">
     <canvas id="three-canvas"></canvas>

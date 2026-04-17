@@ -10,13 +10,29 @@ export const avatarData = {
 };
 
 export function loadAvatar(scene, BONE_DATA) {
+    const selection = window.selectedCharacter;
+    let modelPath = '';
+
+    if (selection === 'female') {
+        modelPath = '/female.glb';
+    } else if (selection === 'male') {
+        modelPath = '/male.glb';
+    } else {
+        console.warn("No selection detected, defaulting to male.");
+        modelPath = '/assets/male.glb';
+    }
+
     const loader = new GLTFLoader();
-    
-    loader.load('/assets/character.glb', (gltf) => {
+    if (avatarData.model) {
+        scene.remove(avatarData.model);
+        avatarData.bones = {};
+        avatarData.boneMap = {};
+    }
+    loader.load(modelPath, (gltf) => {
         avatarData.model = gltf.scene;
         avatarData.model.rotation.y = Math.PI;
         avatarData.model.scale.set(1.5, 1.5, 1.5); 
-        avatarData.model.position.set(0,0,0)
+        avatarData.model.position.set(0, 0, 0);
         avatarData.model.traverse((node) => {
             if (node.isBone) {
                 avatarData.boneMap[node.name] = node;
@@ -33,8 +49,8 @@ export function loadAvatar(scene, BONE_DATA) {
             }
             
             if (node.isMesh && node.morphTargetDictionary) {
-                if (node.morphTargetDictionary['Blink'] !== undefined || 
-                    node.morphTargetDictionary['Fcl_EYE_Close'] !== undefined) {
+                const dict = node.morphTargetDictionary;
+                if (dict['Blink'] !== undefined || dict['Fcl_EYE_Close'] !== undefined) {
                     avatarData.blinkMesh = node;
                 }
             }
@@ -43,21 +59,22 @@ export function loadAvatar(scene, BONE_DATA) {
         for (const boneName in BONE_DATA) {
             if (avatarData.boneMap[boneName]) {
                 avatarData.boneMap[boneName].rotation.set(
-                BONE_DATA[boneName].x,
-                BONE_DATA[boneName].y,
-                BONE_DATA[boneName].z
-            );
+                    BONE_DATA[boneName].x,
+                    BONE_DATA[boneName].y,
+                    BONE_DATA[boneName].z
+                );
+            }
         }
-    }
 
         avatarData.model.updateMatrixWorld(true);
-        
         const box = new THREE.Box3().setFromObject(avatarData.model);
         const center = box.getCenter(new THREE.Vector3());
         avatarData.model.position.set(-center.x, -center.y + 0.9, -center.z);
 
         scene.add(avatarData.model);
-        console.log("Avatar Loaded & Bones Mapped", avatarData.bones);
-        console.log("All bone names:", Object.keys(avatarData.boneMap));
+        
+        console.log(`Avatar Loaded from selection: ${selection}`);
+    }, undefined, (err) => {
+        console.error("GLTFLoader failed. Check if file exists at:", modelPath, err);
     });
 }

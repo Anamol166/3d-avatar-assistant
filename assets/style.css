@@ -21,6 +21,30 @@ body {
     width: 100vw;
     color: #eee;
 }
+/* Add this to your splash.css */
+.hidden {
+    display: none !important;
+}
+
+#character-select {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9); /* Slight transparency looks better */
+    color: white;
+    display: none; /* JS will change this to flex */
+    justify-content: center;
+    align-items: center;
+    z-index: 10000; /* Ensure it is above everything else */
+}
+
+/* Ensure the box doesn't stay invisible if you reuse it */
+.box {
+    animation: fadeOut 1s ease forwards;
+    animation-delay: 2.5s;
+}
 
 #character-container {
     position: absolute;

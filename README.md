@@ -1,21 +1,31 @@
-# 🌙 Luna — 3D AI Avatar Assistant
+# 🌙 Lukas & Luna — 3D AI Avatar Assistant
 
-A real-time, interactive 3D AI assistant powered by **Google Gemini** (via OpenRouter), rendered in the browser using **Three.js**, with a Flask backend for chat, PDF generation, and Wikipedia research.
+A real-time interactive 3D AI assistant system powered by **Google Gemini (OpenRouter)**, built with **Three.js + Flask**, featuring dual character avatars:
+
+- 👦 Lukas (Male AI Avatar)
+- 👧 Luna (Female AI Avatar)
+
+Both avatars are fully animated 3D GLB models with emotion, gaze, and chat-driven behavior.
 
 ---
 
 ## ✨ Features
 
-- 🧠 **AI Chat** — Powered by `google/gemini-2.0-flash-001` via OpenRouter API
-- 🧍 **Animated 3D Avatar** — VRM-compatible `.glb` character with bone-driven animations
-- 👁️ **Gaze & Blink System** — Eyes follow the mouse cursor; natural blinking behavior
-- 🤔 **Thinking Pose** — Avatar shifts posture when processing a response
-- 😊 **Mood Detection** — Detects emotions from AI responses and updates a live mood panel
-- 📄 **PDF Generator** — Asks Luna to create PDF reports on any topic
-- 🔍 **Wikipedia Search** — Luna can research and compile Wikipedia articles into PDFs
-- 🌐 **3D Room Environment** — Custom GLB room scene as a background
+- 🧠 **AI Chat System** — Powered by `google/gemini-2.0-flash-001` via OpenRouter
+- 👦👧 **Dual Character System** — Choose between Lukas or Luna
+- 🧍 **3D Animated Avatars** — GLB models with bone-driven animation system
+- 👁️ **Eye Tracking & Blink System** — Realistic gaze following mouse movement
+- 🤔 **Thinking Pose System** — Avatar reacts while processing responses
+- 😊 **Mood Detection System** — AI emotions reflected in real-time UI panel
+- 📄 **PDF Generator** — Create downloadable reports from AI responses
+- 🔍 **Wikipedia Research Tool** — AI can fetch knowledge and generate PDF summaries
+- 🌐 **3D Environment Scene** — Fully rendered room environment using GLB assets
+- 🎮 **Character Select UI** — Smooth animated selection screen before entering chat
 
 ---
+
+## 📁 Project Structure
+
 
 ## 📁 Project Structure
 

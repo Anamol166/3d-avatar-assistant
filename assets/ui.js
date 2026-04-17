@@ -10,7 +10,7 @@ popbutton.onclick = () =>{
         chatbox.style.display = "none";
         popbutton.style.display = "flex";
     }
-} ;
+};
 
 closebutton.onclick = () =>{
     if (chatbox.style.display === "flex" ){
@@ -21,6 +21,54 @@ closebutton.onclick = () =>{
     }
 };
 
-setTimeout(() => {
-    document.getElementById("splash").remove();
-}, 3500); 
+window.addEventListener("DOMContentLoaded", () => {
+    const splash = document.getElementById("splash");
+    const characterSelect = document.getElementById("character-select");
+    const confirmBtn = document.getElementById("confirmBtn");
+    setTimeout(() => {
+        if (splash) {
+            splash.style.display = "none"; 
+        }
+        characterSelect.classList.remove("hidden");
+        characterSelect.style.display = "flex";
+    }, 3500);
+
+    confirmBtn.onclick = () => {
+        characterSelect.style.opacity = "0";
+        characterSelect.style.transition = "opacity 0.4s ease";
+
+        setTimeout(() => {
+            characterSelect.style.display = "none";
+            characterSelect.classList.add("hidden");
+            document.getElementById("chat-button").style.display = "flex";
+        }, 400);
+    };
+});
+
+function setChar(element, gender) {
+    document.querySelectorAll('.char-option').forEach(opt => {
+        opt.classList.remove('selected');
+    });
+    element.classList.add('selected');
+    console.log("Selected Model:", gender);
+}
+document.querySelectorAll('.char-card').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = ((y - centerY) / centerY) * -10;
+        const rotateY = ((x - centerX) / centerX) * 10;
+        card.style.transform = `
+            rotateX(${rotateX}deg)
+            rotateY(${rotateY}deg)
+            scale(1.08)
+        `;
+    });
+
+    card.addEventListener('mouseleave', () => {
+        card.style.transform = `rotateX(0deg) rotateY(0deg) scale(1)`;
+    });
+});

@@ -19,6 +19,14 @@ app.secret_key = 'luna_secret_key_123'
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
+@app.route('/set_character', methods=['POST'])
+def set_character():
+    data = request.json
+    character = data.get("character", "male") 
+    session['character'] = character
+    session['history'] = [] 
+    return jsonify({"status": "success", "character": character})
+
 @app.route('/')
 def index():
     return render_template('main.html')
@@ -30,14 +38,21 @@ def chat():
         user_input = request.json.get("message", "").strip()
         if not user_input:
             return jsonify({"response": "Boss, I need something to respond to 😅"})
-
+        
         if 'history' not in session:
             session['history'] = []
             #Prompt here
+        char_type = session.get('character', 'male')
+        if char_type == 'female':
+            name = "Luna"
+            gender_desc = "3D girl assistant"
+        else:
+            name = "Lukas"
+            gender_desc = "3D boy assistant"
         system_message = {
-             "role": "system", 
-            "content": """
-            You are 'Luna', a highly capable and polite 3D girl assistant. 
+        "role": "system", 
+        "content": f"""
+        You are {name}, a highly capable and polite {gender_desc}.
             YOUR PERSONA: 
             - Warm, helpful, and slightly witty.
             - You address the user as 'Boss'.

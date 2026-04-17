@@ -3,7 +3,12 @@ import { initScene } from './scene.js';
 import { loadAvatar, avatarData } from './avatar.js';
 import { setThinking, setMood } from './core/emotion.js';
 import { sendMessage } from './core/chat.js';
-
+//Selection
+confirmBtn.onclick = () => {
+    loadAvatar(scene, BONE_DATA);
+    characterSelect.style.display = "none";
+    document.getElementById("chat-button").style.display = "flex";
+};
 // Bones
 const BONE_DATA = {
   J_Bip_L_UpperArm: { x: 0, y: -0.03, z: 1.18 },
