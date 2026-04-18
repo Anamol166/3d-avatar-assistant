@@ -102,7 +102,7 @@ def chat():
 
         if 'choices' not in result or not result['choices']:
             print(f"API Error: {result}")
-            return jsonify({"response": "Luna's brain is offline. Check API credits!"})
+            return jsonify({"response": "Assistant brain is offline. Check API credits!"})
 
         ai_text = result['choices'][0]['message']['content']
         mood = "Neutral"
@@ -129,7 +129,7 @@ def chat():
         elif "[PDF_CONTENT:" in ai_text:
             chat_msg, rest = ai_text.split("[PDF_CONTENT:", 1)
             content = rest.split("]", 1)[0].strip()
-            pdf_res = create_pdf(content, title="Luna Assistant Report")
+            pdf_res = create_pdf(content, title="Assistant Report")
 
             if pdf_res.get("status") == "success":
                 ai_text = f"{chat_msg.strip()}\n\nBoss, I saved the content as a PDF ✅"

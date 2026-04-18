@@ -76,6 +76,7 @@ function setChar(element, gender) {
     window.selectedCharacter = gender;
     console.log("Selected Model:", gender);
 }
+
 document.querySelectorAll('.char-card').forEach(card => {
     card.addEventListener('mousemove', (e) => {
         const rect = card.getBoundingClientRect();

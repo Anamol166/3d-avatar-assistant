@@ -6,78 +6,99 @@
     <title>AI Assistant</title>
     <link rel="stylesheet" href="/assets/style.css">
     <link rel="stylesheet" href="assets/splash.css">
-        <script type="importmap">
-        {
-            "imports": {
-                "three": "https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.module.js",
-                "three/": "https://cdn.jsdelivr.net/npm/three@0.132.2/"
-            }
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.module.js",
+            "three/": "https://cdn.jsdelivr.net/npm/three@0.132.2/"
         }
-        </script>
+    }
+    </script>
+
     <script type="module" src="/assets/main.js"></script>
 </head>
 <body>
-<div id="splash">
-    <div class="box">
-        <div class="logo">
-            <span class="A">A</span>
-            <span class="I">I</span>
-            <span class="text">Assistant</span>
-        </div>
-    </div>
-</div>
-<div id="character-select" class="hidden">
-    <div class="cartoon-bg">
-        <div class="blob top-left"></div>
-        <div class="blob bottom-right"></div>
-        <div class="blob mid-right"></div>
-        <div class="blob top-right"></div>
-    </div>
-    <h2>Select Character Model</h2>
-    <div class="selection-container">
-        <div class="char-option" onclick="setChar(this, 'male')">
-            <div class="char-card">
-                <img src="assets/Character/male.jpeg">
+
+    <div id="splash">
+        <div class="box">
+            <div class="logo">
+                <span class="A">A</span>
+                <span class="I">I</span>
+                <span class="text">Assistant</span>
             </div>
-            <label>Lukas</label>
         </div>
-        
-        <div class="char-option" onclick="setChar(this, 'female')">
-            <div class="char-card">
-                <img src="assets/Character/female.jpeg">
-            </div>
-            <label>Luna</label>
-        </div>
-    </div>
-    <button id="confirmBtn">Confirm</button>
-</div>
-<div id="chat-button">💬</div>
-<div id="character-container">
-    <canvas id="three-canvas"></canvas>
-</div>
-    <div id="chat-container">
-    <div id="chat-header">AI ASSISTANT</div>
-    <div id="close" class="close-btn"> x </div>
-    <div id="chat-messages">Link established...</div>
-    <div id="command-bar">
-      <div id="command-menu" class="command-popup">
-    </div>
-        <button id="commandBtn">> EXECUTE COMMAND</button>
     </div>
 
-    <div id="chat-input-area">
-        <input type="text" id="userInput" placeholder="Type your message...">
-        <button id="sendBtn">Send</button>
+    <div id="character-select" class="hidden">
+        <div class="cartoon-bg">
+            <div class="blob top-left"></div>
+            <div class="blob bottom-right"></div>
+            <div class="blob mid-right"></div>
+            <div class="blob top-right"></div>
+        </div>
+
+        <h2>Select Character Model</h2>
+
+        <div class="selection-container">
+            <div class="char-option" onclick="setChar(this, 'male')">
+                <div class="char-card">
+                    <img src="assets/Character/male.jpeg">
+                </div>
+                <label>Lukas</label>
+            </div>
+
+            <div class="char-option" onclick="setChar(this, 'female')">
+                <div class="char-card">
+                    <img src="assets/Character/female.jpeg">
+                </div>
+                <label>Luna</label>
+            </div>
+        </div>
+
+        <button id="confirmBtn">Confirm</button>
     </div>
+
+    <div id="chat-button">💬</div>
+
+    <div id="character-container">
+        <canvas id="three-canvas"></canvas>
     </div>
-</div>
-<script src="/assets/ui.js"></script>
-<div id="ai-mood-panel">
-    <div style="font-size: 10px; color: #888;">AI STATUS</div>
-    <div id="status-text" style="font-weight: bold; color: #00d4ff;">IDLE</div>
-    <div style="margin-top: 10px; font-size: 10px; color: #888;">MOOD</div>
-    <div id="mood-display" style="font-size: 18px; font-weight: bold;">NEUTRAL</div>
-    <div class="bar-bg"><div id="mood-fill"></div></div>
-</div>
+
+    <div id="chat-container">
+
+        <div id="chat-header">AI ASSISTANT</div>
+        <div id="close" class="close-btn">x</div>
+
+        <div id="chat-messages">
+            Link established...
+        </div>
+
+        <div id="command-bar">
+            <div id="command-menu" class="command-popup"></div>
+            <button id="commandBtn">> EXECUTE COMMAND</button>
+        </div>
+
+        <div id="chat-input-area">
+            <input type="text" id="userInput" placeholder="Type your message...">
+            <button id="sendBtn">Send</button>
+        </div>
+
+    </div>
+
+    <script src="/assets/ui.js"></script>
+
+    <div id="ai-mood-panel">
+        <div style="font-size: 10px; color: #888;">AI STATUS</div>
+        <div id="status-text" style="font-weight: bold; color: #00d4ff;">IDLE</div>
+
+        <div style="margin-top: 10px; font-size: 10px; color: #888;">MOOD</div>
+        <div id="mood-display" style="font-size: 18px; font-weight: bold;">NEUTRAL</div>
+
+        <div class="bar-bg">
+            <div id="mood-fill"></div>
+        </div>
+    </div>
+
 </body>
 </html>

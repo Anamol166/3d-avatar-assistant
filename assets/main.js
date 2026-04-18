@@ -56,6 +56,11 @@ let mouseTimer;
 let basePoseCaptured = false;
 let basePose = {}; 
 
+//Name
+function Name() {
+    return window.selectedCharacter === "male" ? "Lukas" : "Luna";
+}
+//--
 const { scene, camera, renderer, controls } = initScene();
 loadAvatar(scene, BONE_DATA);
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -207,15 +212,15 @@ document.getElementById('sendBtn').onclick = async () => {
 
         setMood(data.mood);
         syncMood(data.mood);
-
-        chatBox.innerHTML += `<div class="ai-msg"><b>Luna:</b> ${data.response}</div>`;
+        
+        chatBox.innerHTML += `<div class="ai-msg"><b>${Name()}:</b> ${data.response}</div>`;
         chatBox.scrollTop = chatBox.scrollHeight;
 
     } catch (err) {
         syncThinking(false);
         setThinking(false);
 
-        chatBox.innerHTML += `<div class="ai-msg">Error: Luna is offline 😢</div>`;
+        chatBox.innerHTML += `<div class="ai-msg">Error:${name} is offline 😢</div>`;
     }
 };
 window.handleCommand = (cmd) => {
