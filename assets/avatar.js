@@ -70,7 +70,5 @@ export function loadAvatar(scene, BONE_DATA) {
         scene.add(avatarData.model);
         
         console.log(`Avatar Loaded from selection: ${selection}`);
-    }, undefined, (err) => {
-        console.error("GLTFLoader failed. Check if file exists at:", modelPath, err);
-    });
+    }, undefined, (err) => {})
 }
