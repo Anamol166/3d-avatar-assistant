@@ -117,7 +117,7 @@ def chat():
                 "Content-Type": "application/json",
             },
             data=json.dumps({
-                "model": "google/gemini-2.5-flash",
+                "model": "tencent/hunyuan-a13b-instruct:free",
                 "messages": messages
             })
         )
