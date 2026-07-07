@@ -116,10 +116,10 @@ def chat():
                 "Authorization": f"Bearer {API_KEY}",
                 "Content-Type": "application/json",
             },
-            data=json.dumps({
+            json={
                 "model": "~openai/gpt-latest",
                 "messages": messages
-            })
+            }
         )
 
         print("API_KEY loaded:", API_KEY is not None)
