@@ -122,6 +122,10 @@ def chat():
             })
         )
 
+        print("API_KEY loaded:", API_KEY is not None)
+        print("Status Code:", response.status_code)
+        print("Response Body:", response.text)
+        
         result = response.json()
 
         if 'choices' not in result or not result['choices']:
