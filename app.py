@@ -117,7 +117,7 @@ def chat():
                 "Content-Type": "application/json",
             },
             data=json.dumps({
-                "model": "tencent/hunyuan-a13b-instruct:free",
+                "model": "~openai/gpt-latest",
                 "messages": messages
             })
         )
